@@ -1,0 +1,30 @@
+<?php
+$dir = __DIR__;
+if (isset($argc)) {;
+	$arg1 = $argv[1] ?? '';
+	$arg2 = $argv[2] ?? '';
+	$arg3 = $argv[3] ?? '';
+	switch ($arg1) {
+		case 'serve':
+			$port = 8000;
+			if (is_numeric($arg2)) $port = $arg2;
+			exec("php -S localhost:{$port} -t public/");
+			return;
+		case 'make:migration':
+			if (!$arg2) return;
+			$time = date_format(new DateTime(), 'ymd_his');
+			$fileName = "m{$time}_" . ($arg2);
+			$filePath = "{$dir}/migrations/{$fileName}.php";
+			fopen($filePath, "a");
+
+			$basePath = "{$dir}/migrations/base_migration.php";
+			$content = str_replace('BaseMigration', $fileName, file_get_contents($basePath));
+			file_put_contents($filePath, $content);
+			return;
+		case 'db:migration':
+			exec("php migrations.php");
+			return;
+		default:
+			echo 'Invalid comment' . PHP_EOL;
+	}
+}
